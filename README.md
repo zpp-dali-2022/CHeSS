@@ -12,6 +12,10 @@ Human intervention intervienes on top of the SPOCA results to refine the boundar
 Therefore, our Deep Learning architecture is not learning straight from the SPOCA results, but from an augmented training set that is closer to the ground truth. 
 This minimizes the risk of learning biases inherent to the SPOCA algorithm.
 
+The graph below illustrates one of our UNet architectures: 
+
+![UNet Graph](images/U-Net_graph_same.png)
+
 ## Authors: 
 - Dr. Raphael Attie @ NASA/GSFC & George Mason University
 - Dr. Michael Kirk @ NASA/GSFC
