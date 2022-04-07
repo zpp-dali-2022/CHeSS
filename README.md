@@ -4,6 +4,14 @@
 
 ![Coronal hole and Active Regions viewed by the HEK](images/2018_04_07_00_36_12_AIA_193.png)
 
+### Project description
+
+This project is an attempt at applying U-Net-based architectures for the detection and segmentation of coronal holes (CHs). 
+The training set is created from the Heliophysics Knowledge Based (HEK) using the results of the SPOCA algorithm.
+Human intervention intervienes on top of the SPOCA results to refine the boundaries according to the accepted phenomenology that defines CHs. 
+Therefore, our Deep Learning architecture is not learning straight from the SPOCA results, but from an augmented training set that is closer to the ground truth. 
+This minimizes the risk of learning biases inherent to the SPOCA algorithm.
+
 ## Authors: 
 - Dr. Raphael Attie @ NASA/GSFC & George Mason University
 - Dr. Michael Kirk @ NASA/GSFC
