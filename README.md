@@ -20,4 +20,7 @@ The graph below illustrates one of our UNet architectures:
 ## Authors: 
 - Dr. Raphael Attie @ NASA/GSFC & George Mason University
 - Dr. Michael Kirk @ NASA/GSFC
+- Andrew Inglis @ NASA/GSFC
+- Emily Mason @ Predictive Science Inc. 
 - Benoit Tremblay @ NSO/LASP
+
