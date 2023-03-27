@@ -7,3 +7,5 @@ cython_modules/build/
 *.pyc
 .ipynb_checkpoints
 __pycache__
+people_segmentation/
+
