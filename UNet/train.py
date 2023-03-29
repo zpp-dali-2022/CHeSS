@@ -1,14 +1,29 @@
 import os
+import tensorflow as tf
+# Restrict GPU memory to 45 GB:
+# https://www.tensorflow.org/guide/gpu#limiting_gpu_memory_growth
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    try:
+        tf.config.set_logical_device_configuration(
+            gpus[0],
+            [tf.config.LogicalDeviceConfiguration(memory_limit=1024*45)])
+        logical_gpus = tf.config.list_logical_devices('GPU')
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+    except RuntimeError as e:
+    # Virtual devices must be set before GPUs have been initialized
+        print(e)
+else:
+    print('Using CPUs')
 import data
 import model
-import tensorflow as tf
 import matplotlib.pyplot as plt
-
 
 # -------- Setup training/validation/test data -------------#
 
-# Data relative paths:
-dataset_path = 'people_segmentation' # parent directory of images and masks directories
+# # parent directory of images and masks directories
+dataset_path = os.path.join(os.environ['DATA'], 'Deep_Learning', 'people_segmentation')
+# Set input dimensions. RGB images will have 3 channels. Set 1 channel for SDO data if testing 1 wavelength
 input_shape = (256, 256, 3)  # image size and nb of channels
 batch_size = 8  # Note that we will use an infinitely repeating data generator
 
@@ -16,9 +31,6 @@ batch_size = 8  # Note that we will use an infinitely repeating data generator
 (train_x, train_y), (test_x, test_y) = data.get_dataset_paths(dataset_path)
 train_dataset = data.create_dataset(train_x, train_y, batch=batch_size)
 test_dataset = data.create_dataset(test_x, test_y, batch=batch_size)
-print(f"Train: {len(train_dataset)}")
-print(f"Test: {len(test_dataset)}")
-
 
 # -------------------------------------------------------------------------------- #
 # ------------------------- Define the U-Net ------------------------------------- #
@@ -60,7 +72,6 @@ steps_per_epochs = len(train_x)//batch_size
 # validation steps to perform at the end of each epoch:
 # with the dataset generator, must be set to avoid an infinite evaluation loop after each training epoch
 validation_steps = len(test_x)//batch_size
-
 
 # Optimizer parameters #
 learning_rate = 1e-3    # This is the default value for the 'Adam' optimizer

@@ -25,8 +25,8 @@ def read_mask(path):
 
 
 def get_dataset_paths(dataset_path):
-    images = glob(os.path.join(dataset_path, "images/*"))
-    masks = glob(os.path.join(dataset_path, "masks/*"))
+    images = sorted(glob(os.path.join(dataset_path, "images/*")))
+    masks = sorted(glob(os.path.join(dataset_path, "masks/*")))
 
     train_x, test_x = train_test_split(images, test_size=0.2, random_state=42)
     train_y, test_y = train_test_split(masks, test_size=0.2, random_state=42)
@@ -54,7 +54,10 @@ def preprocess(image_path, mask_path):
 def create_dataset(images, masks, batch=32, buffer_size=1000):
     dataset = tf.data.Dataset.from_tensor_slices((images, masks))
     dataset = dataset.shuffle(buffer_size=buffer_size)
+    # mapping when reading/processing images from paths should occur before batch()
     dataset = dataset.map(preprocess)
-    dataset = dataset.batch(batch)
+    # Batching with clear epoch separation (place repeat() after batch())
+    # https://www.tensorflow.org/guide/data#training_workflows
+    dataset = dataset.batch(batch).repeat()
     dataset = dataset.prefetch(2)
     return dataset

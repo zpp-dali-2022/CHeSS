@@ -8,4 +8,5 @@ cython_modules/build/
 .ipynb_checkpoints
 __pycache__
 people_segmentation/
-
+checkpoints/
+*.png
