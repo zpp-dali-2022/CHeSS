@@ -42,30 +42,24 @@ pretrained_weights = None  # tf.train.latest_checkpoint(checkpoint_dir)
 
 n_classes = 1   # Number of classes. If binary, set n_classes to 1, used as the number of filters for the last layer
 
-# set the filters in the convolution before max pooling for as many encoder mini blocks as needed:
-# [(nb of layers before each max pooling, nb of filters in those layers), ...]
+# nb of filters in each layer
 # The last encoder mini block is the bridge; it does not use max pooling
-down_layer_filters = [
-    (2, 64),    # 256 -> 128
-    (2, 128),   # 128 -> 64
-    (2, 256),   # 64 -> 32
-    (2, 512),   # 32 -> 16
-    (2, 1024),  # No max pooling: 16 -> 16
-]
+filters = [64, 128, 256, 512, 1024]
 # Max pooling set as True/False, each element applies to each mini block of the encoder
-# You must have as many element as in the downsamping filter list above
+# You must have as many element as in the filter tuple above
 max_pools = (True, True, True, True, False)
 
 ksize = 3           # Kernel size for the convolution blocks
 kinit = 'HeNormal'  # Kernel initializer
 batch_norm = True   # Toggle Batch Normalization
-activation = True   # Toggle activation in each block
-res_block = False   # Toggle ResNet block
+res_block = True   # Toggle ResNet block
 transpose_conv = False  # Set whether to use Transpose conv. instead of Upsampling + conv
+# Activation function for the output layer: some people use softmax. Tested on people segmentation showed lowest accuracy
+final_activation = 'sigmoid'
 
 # Training parameters #
 # As we use a generator with random augmentation, train lengths and batch size are not constraining the
-# the number of steps per epochs and validation steps. Nonetheless, pick reasonable numbers to avoid overtraining
+# number of steps per epochs and validation steps. Nonetheless, pick reasonable numbers to avoid overtraining
 # given that there are only 30 samples in the data source that are very similar to each other.
 epochs = 10
 steps_per_epochs = len(train_x)//batch_size
@@ -77,18 +71,18 @@ validation_steps = len(test_x)//batch_size
 learning_rate = 1e-3    # This is the default value for the 'Adam' optimizer
 compiler_dict = dict(
     optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
-    loss=tf.keras.losses.BinaryCrossentropy(from_logits=not activation),
+    loss=tf.keras.losses.BinaryCrossentropy(from_logits=False),
     metrics=['accuracy']
 )
 
 # Instantiate the model, fit and save weights#
-unet = model.unet_model(input_shape, n_classes, down_layer_filters, compiler_dict,
+unet = model.unet_model(input_shape, n_classes, filters, compiler_dict,
                         ksize=3,
                         batch_norm=batch_norm,
                         max_pools=max_pools,
                         kinit=kinit,
-                        activation=activation,
                         res_block=res_block,
+                        final_activation=final_activation,
                         transpose_conv=transpose_conv)
 
 
@@ -104,6 +98,7 @@ history = unet.fit(train_dataset,
 checkpoint_path = os.path.join(checkpoint_dir, checkpoint_name)
 unet.save_weights(checkpoint_path)
 
+unet.save('trainedUNet_resNet')
 
 # plot training and validation accuracy
 plt.figure(figsize=(8, 8))
@@ -113,6 +108,6 @@ plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
-plt.savefig(f'U-Net_accuracies.png')
+plt.savefig(f'U-Net_accuracies_resNet_{int(res_block)}.png')
 
 

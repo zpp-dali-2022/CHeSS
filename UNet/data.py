@@ -14,12 +14,16 @@ def read_image(path):
     return x
 
 
-def read_mask(path):
+def read_mask(path, normalize=False):
     x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     x = cv2.resize(x, (256, 256))
-    x = x/255.0
-    x = x > 0.5
+    # Masks are PNG files, data range already within [0-1]
+    # Thus no need to normalize
+    if normalize:
+        x = x/255.0
     x = x.astype(np.float32)
+    # Images as provided 3-channel RGB. Need to expand the masks' dimensions
+    # to be consistent with the 3 dimensions in the images
     x = np.expand_dims(x, axis=-1)
     return x
 
