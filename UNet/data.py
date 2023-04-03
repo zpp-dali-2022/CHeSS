@@ -4,19 +4,30 @@ import cv2
 from glob import glob
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
+import fitsio
+from functools import partial
 
-
-def read_image(path):
+def read_image(path, output_size=(256, 256)):
     x = cv2.imread(path, cv2.IMREAD_COLOR)
-    x = cv2.resize(x, (256, 256))
+    x = cv2.resize(x, output_size)
     x = x / 255.0
     x = x.astype(np.float32)
     return x
 
 
-def read_mask(path, normalize=False):
+def read_fits_image(path, output_size=(256, 256)):
+    x = fitsio.read(path)
+    if output_size != x.shape:
+        x = cv2.resize(x, output_size)
+    x = x / 255.0
+    x = x.astype(np.float32)
+    return x
+
+
+def read_mask(path, output_size=(256, 256), normalize=False):
     x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    x = cv2.resize(x, (256, 256))
+    if output_size != x.shape:
+        x = cv2.resize(x, output_size)
     # Masks are PNG files, data range already within [0-1]
     # Thus no need to normalize
     if normalize:
@@ -38,30 +49,31 @@ def get_dataset_paths(dataset_path):
     return (train_x, train_y), (test_x, test_y)
 
 
-def preprocess(image_path, mask_path):
+def preprocess(image_path, mask_path, output_size=(256, 256)):
     def f(image_path, mask_path):
         image_path = image_path.decode()
         mask_path = mask_path.decode()
 
-        x = read_image(image_path)
-        y = read_mask(mask_path)
+        x = read_image(image_path, output_size=output_size)
+        y = read_mask(mask_path, output_size=output_size)
 
         return x, y
 
     image, mask = tf.numpy_function(f, [image_path, mask_path], [tf.float32, tf.float32])
-    image.set_shape([256, 256, 3])
-    mask.set_shape([256, 256, 1])
+    image.set_shape([*output_size, 3])
+    mask.set_shape([*output_size, 1])
 
     return image, mask
 
 
-def create_dataset(images, masks, batch=32, buffer_size=1000):
+def create_dataset(images, masks, batch=8, buffer_size=1000):
     dataset = tf.data.Dataset.from_tensor_slices((images, masks))
     dataset = dataset.shuffle(buffer_size=buffer_size)
     # mapping when reading/processing images from paths should occur before batch()
-    dataset = dataset.map(preprocess)
+    dataset = dataset.map(partial(preprocess, output_size=(256, 256)))
     # Batching with clear epoch separation (place repeat() after batch())
     # https://www.tensorflow.org/guide/data#training_workflows
     dataset = dataset.batch(batch).repeat()
-    dataset = dataset.prefetch(2)
+    # Prefetch timing effetcs: prefetch(2) => 622s with 512x512x3 & batch size 16. 
+    # dataset = dataset.prefetch(2)
     return dataset

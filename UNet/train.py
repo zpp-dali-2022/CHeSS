@@ -24,8 +24,8 @@ import matplotlib.pyplot as plt
 # # parent directory of images and masks directories
 dataset_path = os.path.join(os.environ['DATA'], 'Deep_Learning', 'people_segmentation')
 # Set input dimensions. RGB images will have 3 channels. Set 1 channel for SDO data if testing 1 wavelength
-input_shape = (256, 256, 3)  # image size and nb of channels
-batch_size = 8  # Note that we will use an infinitely repeating data generator
+input_shape = (512, 512, 3)  # image size and nb of channels
+batch_size = 16  # Note that we will use an infinitely repeating data generator
 
 # Generate training/validation/test data
 (train_x, train_y), (test_x, test_y) = data.get_dataset_paths(dataset_path)
