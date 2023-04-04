@@ -27,11 +27,10 @@ import matplotlib.pyplot as plt
 images = sorted(glob.glob(os.path.join(os.environ['DATA'], 'SDO/AIA/jp2_data/curated/2011/*/fits/*.fits')))
 masks = sorted(glob.glob(os.path.join(os.environ['DATA'], 'SDO/AIA/jp2_data/curated/2011/*/label/*.npz')))
 
-# Set input dimensions. RGB images will have 3 channels. Set 1 channel for SDO data if testing 1 wavelength
-input_shape = (256, 256, 1)  # image size and nb of channels
+input_shape = (256, 256, 1)  # image dimensions, nb of channels. Set 1 channel for SDO data if testing 1 wavelength
 batch_size = 16  # Note that we will use an infinitely repeating data generator
-normalize_image = True
-normalize_masks = False
+normalize_image = True  # Will normalize between [0-1]
+normalize_masks = False  # Masks are already between [0-1]
 
 # Generate training/test data
 train_dataset, test_dataset, n_train, n_test = data.create_train_test_sets(images, masks, input_shape,
@@ -56,7 +55,7 @@ n_classes = 1   # Number of classes. If binary, set n_classes to 1, used as the 
 # The last encoder mini block is the bridge; it does not use max pooling
 filters = [64, 128, 256, 512, 1024]
 # Max pooling set as True/False, each element applies to each mini block of the encoder
-# You must have as many element as in the filter tuple above
+# You must have as many element as the filters
 max_pools = (True, True, True, True, False)
 
 ksize = 3           # Kernel size for the convolution blocks
@@ -66,8 +65,9 @@ res_block = True   # Toggle ResNet block
 transpose_conv = False  # Set whether to use Transpose conv. instead of Upsampling + conv
 # Activation function for the output layer: some people use softmax. Tested on people segmentation showed lowest accuracy
 final_activation = 'sigmoid'
-
-# Training parameters #
+# -------------------------------------------------------------------------------- #
+# -------------------------Training parameters ----------------------------------- #
+# -------------------------------------------------------------------------------- #
 # As we use a generator with random augmentation, train lengths and batch size are not constraining the
 # number of steps per epochs and validation steps. Nonetheless, pick reasonable numbers to avoid overtraining
 # given that there are only 30 samples in the data source that are very similar to each other.
