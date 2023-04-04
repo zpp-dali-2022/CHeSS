@@ -1,79 +1,103 @@
 import os
 import numpy as np
 import cv2
-from glob import glob
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import fitsio
 from functools import partial
-
-def read_image(path, output_size=(256, 256)):
-    x = cv2.imread(path, cv2.IMREAD_COLOR)
-    x = cv2.resize(x, output_size)
-    x = x / 255.0
-    x = x.astype(np.float32)
-    return x
+from pathlib import Path
 
 
-def read_fits_image(path, output_size=(256, 256)):
-    x = fitsio.read(path)
-    if output_size != x.shape:
-        x = cv2.resize(x, output_size)
-    x = x / 255.0
-    x = x.astype(np.float32)
-    return x
-
-
-def read_mask(path, output_size=(256, 256), normalize=False):
-    x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    if output_size != x.shape:
-        x = cv2.resize(x, output_size)
-    # Masks are PNG files, data range already within [0-1]
-    # Thus no need to normalize
+def preprocess_array(arr,  normalize, output_size=(256, 256)):
+    if output_size != arr.shape:
+        cv2.setNumThreads(1)
+        arr = cv2.resize(arr, output_size)
     if normalize:
-        x = x/255.0
-    x = x.astype(np.float32)
-    # Images as provided 3-channel RGB. Need to expand the masks' dimensions
+        arr_n = (arr - arr.min()) / (arr.max() - arr.min())
+    else:
+        arr_n = arr
+    arr_n = arr_n.astype(np.float32)
+    return arr_n
+
+
+def preprocess_image(path, normalize, output_size=(256, 256)):
+    if Path(path).suffix == '.fits':
+        x = fitsio.read(path)
+    else:
+        x = cv2.imread(path, cv2.IMREAD_COLOR)
+
+    x = preprocess_array(x, normalize, output_size=output_size)
+    # If the image has only 1 channel (not a 3D cube), we need to add another dimension
+    if len(x.shape) == 2:
+        x = np.expand_dims(x, axis=-1)
+    return x
+
+
+def preprocess_mask(path, normalize, output_size=(256, 256)):
+    if Path(path).suffix == '.npz':
+        data = np.load(path)
+        x = data['arr_0'].astype(np.uint8)
+    else:
+        x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    x = preprocess_array(x, normalize, output_size=output_size)
+    # When images are provided with 3-channel RGB, need to expand the masks' dimensions
     # to be consistent with the 3 dimensions in the images
     x = np.expand_dims(x, axis=-1)
     return x
 
 
-def get_dataset_paths(dataset_path):
-    images = sorted(glob(os.path.join(dataset_path, "images/*")))
-    masks = sorted(glob(os.path.join(dataset_path, "masks/*")))
-
+def split_dataset_paths(images, masks):
     train_x, test_x = train_test_split(images, test_size=0.2, random_state=42)
     train_y, test_y = train_test_split(masks, test_size=0.2, random_state=42)
-
     return (train_x, train_y), (test_x, test_y)
 
 
-def preprocess(image_path, mask_path, output_size=(256, 256)):
-    def f(image_path, mask_path):
-        image_path = image_path.decode()
-        mask_path = mask_path.decode()
+def preprocess(image_path, mask_path, input_shape, normalize_images, normalize_masks):
+    def f(im_path, m_path):
+        im_path = im_path.decode()
+        m_path = m_path.decode()
 
-        x = read_image(image_path, output_size=output_size)
-        y = read_mask(mask_path, output_size=output_size)
+        x = preprocess_image(im_path, normalize_images, output_size=(input_shape[0], input_shape[1]))
+        y = preprocess_mask(m_path, normalize_masks, output_size=(input_shape[0], input_shape[1]))
 
         return x, y
 
     image, mask = tf.numpy_function(f, [image_path, mask_path], [tf.float32, tf.float32])
-    image.set_shape([*output_size, 3])
-    mask.set_shape([*output_size, 1])
+    image.set_shape(input_shape)
+    mask.set_shape([input_shape[0], input_shape[1], 1])
 
     return image, mask
 
 
-def create_dataset(images, masks, batch=8, buffer_size=1000):
+def create_dataset(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
     dataset = tf.data.Dataset.from_tensor_slices((images, masks))
     dataset = dataset.shuffle(buffer_size=buffer_size)
     # mapping when reading/processing images from paths should occur before batch()
-    dataset = dataset.map(partial(preprocess, output_size=(256, 256)))
+    dataset = dataset.map(partial(preprocess,
+                                  input_shape=input_shape,
+                                  normalize_images=normalize_images,
+                                  normalize_masks=normalize_masks),
+                          num_parallel_calls=tf.data.AUTOTUNE)
     # Batching with clear epoch separation (place repeat() after batch())
     # https://www.tensorflow.org/guide/data#training_workflows
-    dataset = dataset.batch(batch).repeat()
-    # Prefetch timing effetcs: prefetch(2) => 622s with 512x512x3 & batch size 16. 
-    # dataset = dataset.prefetch(2)
+    # The preprocessing includes the reading of the files, expensive for big files. Thus put cache() after that.
+    dataset = dataset.cache().batch(batch).repeat()
+    # Prefetch timing effetcs: prefetch(2) => .jpg: no difference with/without: 622s at 512x512x3, batch size 16
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
     return dataset
+
+
+def create_train_test_sets(images, masks, input_shape, normalize_images, normalize_masks,
+                           batch_size=8, buffer_size=1000):
+
+    (train_x, train_y), (test_x, test_y) = split_dataset_paths(images, masks)
+    train_dataset = create_dataset(train_x, train_y, input_shape, normalize_images, normalize_masks,
+                                   batch=batch_size,
+                                   buffer_size=buffer_size)
+    test_dataset = create_dataset(test_x, test_y, input_shape, normalize_images, normalize_masks,
+                                  batch=batch_size,
+                                  buffer_size=buffer_size)
+    n_train = len(train_x)
+    n_test = len(test_x)
+
+    return train_dataset, test_dataset, n_train, n_test
