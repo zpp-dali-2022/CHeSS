@@ -12,7 +12,7 @@ if gpus:
         logical_gpus = tf.config.list_logical_devices('GPU')
         print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
     except RuntimeError as e:
-    # Virtual devices must be set before GPUs have been initialized
+        # Virtual devices must be set before GPUs have been initialized
         print(e)
 else:
     print('Using CPUs')
@@ -40,7 +40,6 @@ train_dataset, test_dataset, n_train, n_test = data.create_train_test_sets(image
                                                                            buffer_size=5000)
 
 
-
 # -------------------------------------------------------------------------------- #
 # ------------------------- Define the U-Net ------------------------------------- #
 # -------------------------------------------------------------------------------- #
@@ -63,7 +62,7 @@ kinit = 'HeNormal'  # Kernel initializer
 batch_norm = True   # Toggle Batch Normalization
 res_block = True   # Toggle ResNet block
 transpose_conv = False  # Set whether to use Transpose conv. instead of Upsampling + conv
-# Activation function for the output layer: some people use softmax. Tested on people segmentation showed lowest accuracy
+# Activation function for the output layer: some use softmax. Tested on people segmentation showed poor accuracy
 final_activation = 'sigmoid'
 # -------------------------------------------------------------------------------- #
 # -------------------------Training parameters ----------------------------------- #
