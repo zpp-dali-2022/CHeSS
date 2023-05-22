@@ -112,7 +112,7 @@ def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_
 # DALI pipeline
 @pipeline_def
 def pipe(images, masks, path, device="cpu", file_list=None, files=None,
-                       hdu_indices=None, dtype=float32):
+                       hdu_indices=None, dtype=np.float32):
     images = fn.experimental.readers.fits(device=device, file_list=images, files=files,
                                         file_root=path, file_filter="*.npy", shard_id=0,
                                         num_shards=1)
@@ -122,9 +122,7 @@ def pipe(images, masks, path, device="cpu", file_list=None, files=None,
                             file_root=path,
                             file_filter="*.fits",
                             shard_id=0,
-                            num_shards=1,
-                            cache_header_information=cache_header_information,
-                            pad_last_batch=pad_last_batch)
+                            num_shards=1)
                       
     images = fn.resize(images, resize_x = 256, resize_y = 256)
     # is this resize performed correctly?
