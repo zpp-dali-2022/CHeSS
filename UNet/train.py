@@ -35,6 +35,7 @@ input_shape = (256, 256, 1)  # image dimensions, nb of channels. Set 1 channel f
 batch_size = 16  # Note that we will use an infinitely repeating data generator
 if args.use_dali:
     # Paths to images and label masks
+    convert_npz_to_npy(os.path.join(os.environ['DATA'], 'SDO/AIA/jp2_data/curated/2011/*/label'))
     images = sorted(glob.glob(os.path.join( '/home/aderylo/2011/*/fits/*.fits')))
     masks = sorted(glob.glob(os.path.join( '/home/aderylo/2011/*/label/*.npy')))
 
