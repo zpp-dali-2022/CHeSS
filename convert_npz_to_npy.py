@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 # Convert '.npz' files to '.npy' format
-def convert_npz_to_npy(path):
+def convert(path):
     npz_files = [file for file in os.listdir(path) if file.endswith('.npz')]
     for npz_file in npz_files:
         npz_file_path = os.path.join(path, npz_file)

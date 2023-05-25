@@ -33,6 +33,8 @@ Export path to data, here is my example:
 export DATA_PATH=/home/aderylo/2011/01/
 ```
 
+Before training you have to convert npz files to npy in label subfolder. 
+
 To start training:
 ```
 python UNet/train.py
