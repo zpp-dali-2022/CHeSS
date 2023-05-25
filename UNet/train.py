@@ -35,9 +35,9 @@ input_shape = (256, 256, 1)  # image dimensions, nb of channels. Set 1 channel f
 batch_size = 16  # Note that we will use an infinitely repeating data generator
 if args.use_dali:
     # Paths to images and label masks
-    convert_npz_to_npy(os.path.join( '/home/aderylo/2011/*/label'))
-    images = sorted(glob.glob(os.path.join( '/home/aderylo/2011/*/fits/*.fits')))
-    masks = sorted(glob.glob(os.path.join( '/home/aderylo/2011/*/label/*.npy')))
+    data_path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
+    images = sorted(glob.glob(os.path.join(data_path, "fits/*.fits" )))
+    masks = sorted(glob.glob(os.path.join( data_path, "label/*.npy")))
 
     # Generate training/test data
     train_dataset, test_dataset, n_train, n_test = data.create_train_test_sets(images, masks, input_shape,
@@ -48,8 +48,10 @@ if args.use_dali:
                                                                             
 else:    
     # Paths to images and label masks
-    images = sorted(glob.glob(os.path.join( '/home/aderylo/2011/*/fits/*.fits')))
-    masks = sorted(glob.glob(os.path.join( '/home/aderylo/2011/*/label/*.npz')))
+    data_path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
+    images = sorted(glob.glob(os.path.join(data_path, "fits/*.fits" )))
+    masks = sorted(glob.glob(os.path.join( data_path, "label/*.npy")))
+
 
     # Generate training/test data
     train_dataset, test_dataset, n_train, n_test = data.create_train_test_sets(images, masks, input_shape,

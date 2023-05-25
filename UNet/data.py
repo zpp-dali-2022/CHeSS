@@ -8,6 +8,7 @@ from functools import partial
 from pathlib import Path
 import numpy as np
 from nvidia.dali import pipeline_def
+from nvidia.dali.plugin.tf import DALIDataset
 import nvidia.dali.fn as fn
 
 
