@@ -3,6 +3,7 @@ import glob
 import tensorflow as tf
 import nvidia.dali.fn as fn
 import argparse
+from convert_npz_to_npy import convert_npz_to_npy
 
 # Added '--use_dali' optional option
 parser = argparse.ArgumentParser()
