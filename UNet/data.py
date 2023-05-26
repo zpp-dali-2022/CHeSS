@@ -10,6 +10,7 @@ import numpy as np
 from nvidia.dali import pipeline_def
 from nvidia.dali.plugin.tf import DALIDataset
 import nvidia.dali.fn as fn
+import nvidia.dali.types as types
 
 
 def preprocess_array(arr,  normalize, output_size=(256, 256)):
@@ -32,8 +33,11 @@ def preprocess_image(path, normalize, output_size=(256, 256)):
 
     x = preprocess_array(x, normalize, output_size=output_size)
     # If the image has only 1 channel (not a 3D cube), we need to add another dimension
+    # print(x.shape) (256, 256)
     if len(x.shape) == 2:
         x = np.expand_dims(x, axis=-1)
+        #  print(x.shape) (256, 256, 1)
+        print(x)
     return x
 
 
@@ -95,9 +99,11 @@ def create_dataset(images, masks, input_shape, normalize_images, normalize_masks
 
 @pipeline_def(device_id=0, batch_size=64)
 def dali_pipeline(images, masks, device = "cpu"):
-    images = fn.experimental.readers.fits(device=device, files=images)
-    masks = fn.readers.numpy(device=device, files=masks)
-    images = fn.resize(images, size=[256, 256])
+    images = fn.experimental.readers.fits(device=device, files=images) # after that (16, 4096, 4096)
+    masks = fn.readers.numpy(device=device, files=masks)       
+    images = fn.reinterpret(images, dtype=types.FLOAT) # after that (16,4096,8192)
+    images = fn.expand_dims(images, axes=[0]) # after that (16,1,4096,8192)
+    images = fn.resize(images, size=[256, 256]) # after that (16,256,256,8192)
     return images, masks
 
 def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
