@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from nvidia.dali import pipeline_def
 import nvidia.dali.fn as fn
-from convert_npz_to_npy import convert_npz_to_npy
+
 
 
 def preprocess_array(arr,  normalize, output_size=(256, 256)):
@@ -115,7 +115,7 @@ def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_
 # DALI pipeline
 @pipeline_def
 def pipe(images, masks, path, device="cpu", file_list=None, files=None,
-                       hdu_indices=None, dtype=float32):
+                       hdu_indices=None, dtype=float):
     images = fn.experimental.readers.fits(device=device, file_list=images, files=files,
                                         file_root=path, file_filter="*.npy", shard_id=0,
                                         num_shards=1)
@@ -134,7 +134,7 @@ def pipe(images, masks, path, device="cpu", file_list=None, files=None,
     masks = fn.resize(images, resize_x = 256, resize_y = 256)
     #images = fn.normalize(images, dtype=dtype)
     images = fn.crop_mirror_normalize(
-        images, device=device, dtype=types.FLOAT32, std=[255.], output_layout="CHW")
+        images, device=device, dtype=types.FLOAT, std=[255.], output_layout="CHW")
     return images, masks
 
 
@@ -146,7 +146,7 @@ def create_train_test_sets(images, masks, input_shape, normalize_images, normali
 
     (train_x, train_y), (test_x, test_y) = split_dataset_paths(images, masks)
 
-    if(use_dali == False):
+    if (use_dali == False):
         train_dataset = create_dataset(train_x, train_y, input_shape, normalize_images, normalize_masks,
                                     batch=batch_size,
                                     buffer_size=buffer_size)
