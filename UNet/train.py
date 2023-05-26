@@ -3,6 +3,9 @@ import glob
 import tensorflow as tf
 import nvidia.dali.fn as fn
 import argparse
+import data
+import model
+import matplotlib.pyplot as plt
 
 # Added '--use_dali' optional option
 parser = argparse.ArgumentParser()
@@ -23,10 +26,6 @@ if gpus:
         print(e)
 else:
     print('Using CPUs')
-import data
-import model
-import matplotlib.pyplot as plt
-
 
 # -------- Setup training/validation/test data -------------#
 normalize_image = True  # Will normalize between [0-1]
@@ -140,4 +139,3 @@ plt.ylabel('Accuracy')
 plt.grid()
 plt.legend(loc='lower right')
 plt.savefig(f'U-Net_accuracies_resNet_{int(res_block)}.png')
-

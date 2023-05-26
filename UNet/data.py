@@ -97,19 +97,29 @@ def create_dataset(images, masks, input_shape, normalize_images, normalize_masks
     dataset = dataset.prefetch(tf.data.AUTOTUNE)
     return dataset
 
+# normalize according to formula: (target - min_target ) / (max_target  - min_target)
+def normalize_target(target):
+    min_target = fn.reductions.min(target)
+    max_target = fn.reductions.max(target)
+    diff = max_target - min_target
+    normalized_target = (target - min_target) / diff
+    return normalized_target
+
 @pipeline_def(device_id=0, batch_size=64)
 def dali_pipeline(images, masks, device = "cpu"):
     images = fn.experimental.readers.fits(device=device, files=images) # after that (16, 4096, 4096)
     images = fn.cast(images, dtype=types.FLOAT) 
     images = fn.expand_dims(images, axes=[2]) 
     images = fn.resize(images, size=[256, 256]) 
+    normalized_images = normalize_target(images)
 
     masks = fn.readers.numpy(device=device, files=masks) 
     masks = fn.cast(masks, dtype=types.FLOAT) 
     masks = fn.expand_dims(masks, axes=[2]) 
     masks = fn.resize(masks, size=[256, 256]) 
+    normalized_masks = normalize_target(masks)
 
-    return images, masks
+    return normalized_images, normalized_masks
 
 def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
     # Create pipeline
