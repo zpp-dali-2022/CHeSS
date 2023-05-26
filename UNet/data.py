@@ -107,8 +107,9 @@ def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_
 
     # Define shapes and types of the outputs
     shapes = (
-        (input_shape),
-        (input_shape[0], input_shape[1], batch))
+            (batch, input_shape[0], input_shape[1], 1),
+            (batch, input_shape[0], input_shape[1], 1)
+        )
     dtypes = (
         tf.float32,
         tf.float32)
@@ -134,9 +135,7 @@ def create_train_test_sets(images, masks, input_shape, normalize_images, normali
                                     buffer_size=buffer_size)
         test_dataset = create_dataset(test_x, test_y, input_shape, normalize_images, normalize_masks,
                                     batch=batch_size,
-                                    buffer_size=buffer_size)
-        
-        breakpoint()
+                                    buffer_size=buffer_size)        
     else:
         #use DALI instead of astropy)
         train_dataset = create_dataset_DALI(train_x, train_y, input_shape, normalize_images, normalize_masks,
@@ -145,9 +144,6 @@ def create_train_test_sets(images, masks, input_shape, normalize_images, normali
         test_dataset = create_dataset_DALI(test_x, test_y, input_shape, normalize_images, normalize_masks,
                                     batch=batch_size,
                                     buffer_size=buffer_size)
-        
-        breakpoint()
-
 
     n_train = len(train_x)
     n_test = len(test_x)

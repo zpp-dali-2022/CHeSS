@@ -8,9 +8,9 @@ def convert(path):
         npz_file_path = os.path.join(path, npz_file)
         npy_file_path = os.path.join(path,
                                      npz_file.replace('.npz', '.npy'))
-        
+
         with np.load(npz_file_path) as data:
-            np.save(npy_file_path, data['arr_0'])
+            np.save(npy_file_path, data['arr_0'].astype(np.uint8))
 
 
 if __name__ == "__main__":
