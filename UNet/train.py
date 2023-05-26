@@ -50,7 +50,7 @@ else:
     # Paths to images and label masks
     data_path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
     images = sorted(glob.glob(os.path.join(data_path, "fits/*.fits" )))
-    masks = sorted(glob.glob(os.path.join( data_path, "label/*.npy")))
+    masks = sorted(glob.glob(os.path.join( data_path, "label/*.npz")))
 
 
     # Generate training/test data
