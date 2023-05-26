@@ -37,8 +37,6 @@ batch_size = 16  # Note that we will use an infinitely repeating data generator
 if args.use_dali:
     # Paths to images and label masks
     data_path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
-
-    convert_npz_to_npy(os.path.join( data_path, "label"))
     images = sorted(glob.glob(os.path.join(data_path, "fits/*.fits" )))
     masks = sorted(glob.glob(os.path.join( data_path, "label/*.npy")))
 

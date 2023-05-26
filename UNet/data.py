@@ -97,48 +97,50 @@ import nvidia.dali.plugin.tf as dali_tf
 
 def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
     shapes = (
-        (input_shape),
-        (batch))
-    dtypes = (
-        tf.float32)
+        (batch, input_shape[0], input_shape[1], 1),
+        (batch, input_shape[0], input_shape[1], 1)
+    )
+    dtypes = (tf.float32, tf.float32)
 
+    data_path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
+    
     with tf.device('/cpu:0'):
         created_dataset = dali_tf.DALIDataset(
-            pipeline=pipe(images, masks),
-            batch_size=BATCH_SIZE,
+            pipeline=pipe(images, masks, os.path.join(data_path), input_shape),
+            batch_size=batch,
             output_shapes=shapes,
             output_dtypes=dtypes,
             device_id=0) 
 
-    return created_dataset    
+    return created_dataset   
 
 # DALI pipeline
-@pipeline_def
-def pipe(images, masks, path, device="cpu", file_list=None, files=None,
+import nvidia.dali.types as types
+
+@pipeline_def(device_id=0, batch_size=8)
+def pipe(images, masks, path, input_shape, device="cpu", file_list=None, files=None,
                        hdu_indices=None, dtype=float):
-    images = fn.experimental.readers.fits(device=device, file_list=images, files=files,
-                                        file_root=path, file_filter="*.npy", shard_id=0,
-                                        num_shards=1)
+    images = fn.experimental.readers.fits(device=device, files=images,
+                                          file_root=path, file_filter="*.npy", shard_id=0,
+                                          num_shards=1)
+    images = fn.cast(images, dtype=types.FLOAT)
     masks = fn.readers.numpy(device=device,
-                            file_list=masks,
-                            files=files,
-                            file_root=path,
-                            file_filter="*.fits",
-                            shard_id=0,
-                            num_shards=1,
-                            cache_header_information=cache_header_information,
-                            pad_last_batch=pad_last_batch)
+                             files=masks,
+                             file_root=path,
+                             file_filter="*.fits",
+                             shard_id=0,
+                             num_shards=1)
                       
-    images = fn.resize(images, resize_x = 256, resize_y = 256)
-    # is this resize performed correctly?
-    masks = fn.resize(images, resize_x = 256, resize_y = 256)
-    #images = fn.normalize(images, dtype=dtype)
-    images = fn.crop_mirror_normalize(
-        images, device=device, dtype=types.FLOAT, std=[255.], output_layout="CHW")
+    images = fn.resize(images, resize_x=256, resize_y=256)
+    masks = fn.resize(masks, resize_x=256, resize_y=256)
+    
+    images = fn.normalize(images, dtype=types.FLOAT)
+    
     return images, masks
 
 
-   
+
+
 
 
 def create_train_test_sets(images, masks, input_shape, normalize_images, normalize_masks,
