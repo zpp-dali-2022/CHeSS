@@ -14,6 +14,6 @@ def convert(path):
 
 
 if __name__ == "__main__":
-    path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
+    path = os.getenv('DATA_PATH', '/home/ahess/2011/01/')
     path = os.path.join( path, "label")
     convert(path)

@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 # Added '--use_dali' optional option
 parser = argparse.ArgumentParser()
 parser.add_argument('--use_dali', action='store_true', help='Use DALI for processing')
+parser.add_argument('--GPU', action='store_true', help='Use GPU for computing')
 args = parser.parse_args()
 # Restrict GPU memory to 45 GB:
 # https://www.tensorflow.org/guide/gpu#limiting_gpu_memory_growth
@@ -34,22 +35,23 @@ input_shape = (256, 256, 1)  # image dimensions, nb of channels. Set 1 channel f
 batch_size = 16  # Note that we will use an infinitely repeating data generator
 if args.use_dali:
     # Paths to images and label masks
-    data_path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
+    data_path = os.getenv('DATA_PATH', '/home/ahess/2011/01/')
     images = sorted(glob.glob(os.path.join(data_path, "fits/*.fits" )))
-    masks = sorted(glob.glob(os.path.join( data_path, "label/*.npy")))
+    masks = sorted(glob.glob(os.path.join(data_path, "label/*.npy")))
+    use_GPU = args.GPU
 
     # Generate training/test data
     train_dataset, test_dataset, n_train, n_test = data.create_train_test_sets(images, masks, input_shape,
                                                                             normalize_images=True,
                                                                             normalize_masks=False,
                                                                             batch_size=batch_size,
-                                                                            buffer_size=5000, use_dali = True)          
+                                                                            buffer_size=5000, use_dali = True, use_GPU = use_GPU)          
                                                                             
 else:    
     # Paths to images and label masks
-    data_path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
+    data_path = os.getenv('DATA_PATH', '/home/ahess/2011/01/')
     images = sorted(glob.glob(os.path.join(data_path, "fits/*.fits" )))
-    masks = sorted(glob.glob(os.path.join( data_path, "label/*.npz")))
+    masks = sorted(glob.glob(os.path.join(data_path, "label/*.npz")))
 
 
     # Generate training/test data
@@ -57,7 +59,7 @@ else:
                                                                             normalize_images=True,
                                                                             normalize_masks=False,
                                                                             batch_size=batch_size,
-                                                                            buffer_size=5000, use_dali = False)
+                                                                            buffer_size=5000, use_dali = False, use_GPU = False)
                                                                  
 
 

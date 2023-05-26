@@ -121,10 +121,14 @@ def dali_pipeline(images, masks, device = "cpu"):
 
     return normalized_images, normalized_masks
 
-def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
+def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks,
+                         batch=8, buffer_size=1000, use_GPU=False):
     # Create pipeline
+    device = 'gpu' if use_GPU else 'cpu'
     print("Creating DALI pipeline")
-    pipeline = dali_pipeline(images, masks, device='cpu')
+    print("Use " + device.upper() + " for computing")  
+
+    pipeline = dali_pipeline(images, masks, device=device)
 
     # Define shapes and types of the outputs
     shapes = (
@@ -146,8 +150,8 @@ def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_
     return dataset 
 
 def create_train_test_sets(images, masks, input_shape, normalize_images, normalize_masks,
-                           batch_size=8, buffer_size=1000, use_dali=False):
-
+                           batch_size=8, buffer_size=1000, use_dali=False, use_GPU=False):
+    
     (train_x, train_y), (test_x, test_y) = split_dataset_paths(images, masks)
 
     if(use_dali == False):
@@ -158,13 +162,15 @@ def create_train_test_sets(images, masks, input_shape, normalize_images, normali
                                     batch=batch_size,
                                     buffer_size=buffer_size)        
     else:
-        #use DALI instead of astropy)
+        #use DALI instead of astropy
         train_dataset = create_dataset_DALI(train_x, train_y, input_shape, normalize_images, normalize_masks,
                             batch=batch_size,
-                            buffer_size=buffer_size)
+                            buffer_size=buffer_size,
+                            use_GPU=use_GPU)
         test_dataset = create_dataset_DALI(test_x, test_y, input_shape, normalize_images, normalize_masks,
                                     batch=batch_size,
-                                    buffer_size=buffer_size)
+                                    buffer_size=buffer_size,
+                                    use_GPU=use_GPU)
 
     n_train = len(train_x)
     n_test = len(test_x)
