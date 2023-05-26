@@ -6,6 +6,10 @@ import tensorflow as tf
 import fitsio
 from functools import partial
 from pathlib import Path
+import numpy as np
+from nvidia.dali import pipeline_def
+import nvidia.dali.fn as fn
+from convert_npz_to_npy import convert_npz_to_npy
 
 
 def preprocess_array(arr,  normalize, output_size=(256, 256)):
@@ -37,6 +41,9 @@ def preprocess_mask(path, normalize, output_size=(256, 256)):
     if Path(path).suffix == '.npz':
         data = np.load(path)
         x = data['arr_0'].astype(np.uint8)
+    elif Path(path).suffix == '.npy':   
+        data = np.load(path)
+        x = data['arr_0'].astype(np.uint8) 
     else:
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     x = preprocess_array(x, normalize, output_size=output_size)
@@ -86,18 +93,86 @@ def create_dataset(images, masks, input_shape, normalize_images, normalize_masks
     dataset = dataset.prefetch(tf.data.AUTOTUNE)
     return dataset
 
+import nvidia.dali.plugin.tf as dali_tf
+
+def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
+    shapes = (
+        (input_shape),
+        (batch))
+    dtypes = (
+        tf.float32)
+
+    with tf.device('/cpu:0'):
+        created_dataset = dali_tf.DALIDataset(
+            pipeline=pipe(images, masks),
+            batch_size=BATCH_SIZE,
+            output_shapes=shapes,
+            output_dtypes=dtypes,
+            device_id=0) 
+
+    return created_dataset    
+
+# DALI pipeline
+@pipeline_def
+def pipe(images, masks, path, device="cpu", file_list=None, files=None,
+                       hdu_indices=None, dtype=float32):
+    images = fn.experimental.readers.fits(device=device, file_list=images, files=files,
+                                        file_root=path, file_filter="*.npy", shard_id=0,
+                                        num_shards=1)
+    masks = fn.readers.numpy(device=device,
+                            file_list=masks,
+                            files=files,
+                            file_root=path,
+                            file_filter="*.fits",
+                            shard_id=0,
+                            num_shards=1,
+                            cache_header_information=cache_header_information,
+                            pad_last_batch=pad_last_batch)
+                      
+    images = fn.resize(images, resize_x = 256, resize_y = 256)
+    # is this resize performed correctly?
+    masks = fn.resize(images, resize_x = 256, resize_y = 256)
+    #images = fn.normalize(images, dtype=dtype)
+    images = fn.crop_mirror_normalize(
+        images, device=device, dtype=types.FLOAT32, std=[255.], output_layout="CHW")
+    return images, masks
+
+
+   
+
 
 def create_train_test_sets(images, masks, input_shape, normalize_images, normalize_masks,
-                           batch_size=8, buffer_size=1000):
+                           batch_size=8, buffer_size=1000, use_dali=False):
 
     (train_x, train_y), (test_x, test_y) = split_dataset_paths(images, masks)
-    train_dataset = create_dataset(train_x, train_y, input_shape, normalize_images, normalize_masks,
-                                   batch=batch_size,
-                                   buffer_size=buffer_size)
-    test_dataset = create_dataset(test_x, test_y, input_shape, normalize_images, normalize_masks,
-                                  batch=batch_size,
-                                  buffer_size=buffer_size)
+
+    if(use_dali == False):
+        train_dataset = create_dataset(train_x, train_y, input_shape, normalize_images, normalize_masks,
+                                    batch=batch_size,
+                                    buffer_size=buffer_size)
+        test_dataset = create_dataset(test_x, test_y, input_shape, normalize_images, normalize_masks,
+                                    batch=batch_size,
+                                    buffer_size=buffer_size)
+    else:
+        #use DALI instead of astropy
+        train_dataset = create_dataset_DALI(train_x, train_y, input_shape, normalize_images, normalize_masks,
+                            batch=batch_size,
+                            buffer_size=buffer_size)
+        test_dataset = create_dataset_DALI(test_x, test_y, input_shape, normalize_images, normalize_masks,
+                                    batch=batch_size,
+                                    buffer_size=buffer_size)
+
     n_train = len(train_x)
     n_test = len(test_x)
 
     return train_dataset, test_dataset, n_train, n_test
+
+# Convert '.npz' files to '.npy' format
+def convert_npz_to_npy(path):
+    npz_files = [file for file in os.listdir(path) if file.endswith('.npz')]
+    for npz_file in npz_files:
+        npz_file_path = os.path.join(path, npz_file)
+        npy_file_path = os.path.join(path, npz_file.replace('.npz', '.npy'))
+        data = np.load(npz_file_path)
+        np.save(npy_file_path, data)
+    return    
