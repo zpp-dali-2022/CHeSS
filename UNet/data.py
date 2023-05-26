@@ -6,6 +6,11 @@ import tensorflow as tf
 import fitsio
 from functools import partial
 from pathlib import Path
+import numpy as np
+from nvidia.dali import pipeline_def
+from nvidia.dali.plugin.tf import DALIDataset
+import nvidia.dali.fn as fn
+import nvidia.dali.types as types
 
 
 def preprocess_array(arr,  normalize, output_size=(256, 256)):
@@ -28,8 +33,11 @@ def preprocess_image(path, normalize, output_size=(256, 256)):
 
     x = preprocess_array(x, normalize, output_size=output_size)
     # If the image has only 1 channel (not a 3D cube), we need to add another dimension
+    # print(x.shape) (256, 256)
     if len(x.shape) == 2:
         x = np.expand_dims(x, axis=-1)
+        #  print(x.shape) (256, 256, 1)
+        print(x)
     return x
 
 
@@ -37,6 +45,9 @@ def preprocess_mask(path, normalize, output_size=(256, 256)):
     if Path(path).suffix == '.npz':
         data = np.load(path)
         x = data['arr_0'].astype(np.uint8)
+    elif Path(path).suffix == '.npy':   
+        data = np.load(path)
+        x = data['arr_0'].astype(np.uint8) 
     else:
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     x = preprocess_array(x, normalize, output_size=output_size)
@@ -86,17 +97,65 @@ def create_dataset(images, masks, input_shape, normalize_images, normalize_masks
     dataset = dataset.prefetch(tf.data.AUTOTUNE)
     return dataset
 
+@pipeline_def(device_id=0, batch_size=64)
+def dali_pipeline(images, masks, device = "cpu"):
+    images = fn.experimental.readers.fits(device=device, files=images) # after that (16, 4096, 4096)
+    images = fn.cast(images, dtype=types.FLOAT) 
+    images = fn.expand_dims(images, axes=[2]) 
+    images = fn.resize(images, size=[256, 256]) 
+
+    masks = fn.readers.numpy(device=device, files=masks) 
+    masks = fn.cast(masks, dtype=types.FLOAT) 
+    masks = fn.expand_dims(masks, axes=[2]) 
+    masks = fn.resize(masks, size=[256, 256]) 
+
+    return images, masks
+
+def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
+    # Create pipeline
+    print("Creating DALI pipeline")
+    pipeline = dali_pipeline(images, masks, device='cpu')
+
+    # Define shapes and types of the outputs
+    shapes = (
+            (batch, input_shape[0], input_shape[1], 1),
+            (batch, input_shape[0], input_shape[1], 1)
+        )
+    dtypes = (
+        tf.float32,
+        tf.float32)
+
+    # Create dataset
+    dataset = DALIDataset(
+        pipeline=pipeline,
+        batch_size=batch,
+        output_shapes=shapes,
+        output_dtypes=dtypes,
+        device_id=0)
+    
+    return dataset 
 
 def create_train_test_sets(images, masks, input_shape, normalize_images, normalize_masks,
-                           batch_size=8, buffer_size=1000):
+                           batch_size=8, buffer_size=1000, use_dali=False):
 
     (train_x, train_y), (test_x, test_y) = split_dataset_paths(images, masks)
-    train_dataset = create_dataset(train_x, train_y, input_shape, normalize_images, normalize_masks,
-                                   batch=batch_size,
-                                   buffer_size=buffer_size)
-    test_dataset = create_dataset(test_x, test_y, input_shape, normalize_images, normalize_masks,
-                                  batch=batch_size,
-                                  buffer_size=buffer_size)
+
+    if(use_dali == False):
+        train_dataset = create_dataset(train_x, train_y, input_shape, normalize_images, normalize_masks,
+                                    batch=batch_size,
+                                    buffer_size=buffer_size)
+        test_dataset = create_dataset(test_x, test_y, input_shape, normalize_images, normalize_masks,
+                                    batch=batch_size,
+                                    buffer_size=buffer_size)        
+    else:
+        #use DALI instead of astropy)
+        train_dataset = create_dataset_DALI(train_x, train_y, input_shape, normalize_images, normalize_masks,
+                            batch=batch_size,
+                            buffer_size=buffer_size)
+        test_dataset = create_dataset_DALI(test_x, test_y, input_shape, normalize_images, normalize_masks,
+                                    batch=batch_size,
+                                    buffer_size=buffer_size)
+
     n_train = len(train_x)
     n_test = len(test_x)
 

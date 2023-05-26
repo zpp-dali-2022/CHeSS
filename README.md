@@ -21,4 +21,29 @@ The graph below illustrates one of our UNet architectures:
 - Dr. Raphael Attie @ NASA/GSFC & George Mason University
 - Dr. Michael Kirk @ NASA/GSFC
 
+---
+# DALI contributions
+Install dependencies: 
+```
+pip install -r requirements.txt
+```
 
+Export path to data, here is my example:
+```
+export DATA_PATH=/home/aderylo/2011/01/
+```
+
+Before training you have to convert npz files to npy in label subfolder. 
+```
+python convert_npz_to_npy.py
+```
+
+To start training:
+```
+python UNet/train.py
+```
+
+If running with DALI:
+```
+python UNet/train.py --use_dali
+```
