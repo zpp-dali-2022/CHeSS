@@ -97,7 +97,7 @@ def create_dataset(images, masks, input_shape, normalize_images, normalize_masks
 def dali_pipeline(images, masks, device = "cpu"):
     images = fn.experimental.readers.fits(device=device, files=images)
     masks = fn.readers.numpy(device=device, files=masks)
-
+    images = fn.resize(images, size=[256, 256])
     return images, masks
 
 def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
