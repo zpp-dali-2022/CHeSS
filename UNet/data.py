@@ -93,44 +93,35 @@ def create_dataset(images, masks, input_shape, normalize_images, normalize_masks
     dataset = dataset.prefetch(tf.data.AUTOTUNE)
     return dataset
 
-def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
-    dataset = tf.data.Dataset.from_tensor_slices((pipe(images, masks)))
-    dataset = dataset.shuffle(buffer_size=buffer_size)
-    # mapping when reading/processing images from paths should occur before batch()
-    dataset = dataset.map(partial(preprocess,
-                                  input_shape=input_shape,
-                                  normalize_images=normalize_images,
-                                  normalize_masks=normalize_masks),
-                          num_parallel_calls=tf.data.AUTOTUNE)
-    # Batching with clear epoch separation (place repeat() after batch())
-    # https://www.tensorflow.org/guide/data#training_workflows
-    # The preprocessing includes the reading of the files, expensive for big files. Thus put cache() after that.
-    dataset = dataset.cache().batch(batch).repeat()
-    # Prefetch timing effetcs: prefetch(2) => .jpg: no difference with/without: 622s at 512x512x3, batch size 16
-    dataset = dataset.prefetch(tf.data.AUTOTUNE)
-    return dataset    
+@pipeline_def(device_id=0, batch_size=64)
+def dali_pipeline(images, masks, device = "cpu"):
+    images = fn.experimental.readers.fits(device=device, files=images)
+    masks = fn.readers.numpy(device=device, files=masks)
 
-# DALI pipeline
-@pipeline_def
-def pipe(images, masks, path, device="cpu", file_list=None, files=None,
-                       hdu_indices=None, dtype=np.float32):
-    images = fn.experimental.readers.fits(device=device, file_list=images, files=files,
-                                        file_root=path, file_filter="*.npy", shard_id=0,
-                                        num_shards=1)
-    masks = fn.readers.numpy(device=device,
-                            file_list=masks,
-                            files=files,
-                            file_root=path,
-                            file_filter="*.fits",
-                            shard_id=0,
-                            num_shards=1)
-                      
-    images = fn.resize(images, resize_x = 256, resize_y = 256)
-    # is this resize performed correctly?
-    masks = fn.resize(images, resize_x = 256, resize_y = 256)
-    images = fn.normalize(images, dtype=dtype)
     return images, masks
 
+def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_masks, batch=8, buffer_size=1000):
+    # Create pipeline
+    print("Creating DALI pipeline")
+    pipeline = dali_pipeline(images, masks, device='cpu')
+
+    # Define shapes and types of the outputs
+    shapes = (
+        (input_shape),
+        (input_shape[0], input_shape[1], batch))
+    dtypes = (
+        tf.float32,
+        tf.float32)
+
+    # Create dataset
+    dataset = DALIDataset(
+        pipeline=pipeline,
+        batch_size=batch,
+        output_shapes=shapes,
+        output_dtypes=dtypes,
+        device_id=0)
+    
+    return dataset 
 
 def create_train_test_sets(images, masks, input_shape, normalize_images, normalize_masks,
                            batch_size=8, buffer_size=1000, use_dali=False):
@@ -144,14 +135,19 @@ def create_train_test_sets(images, masks, input_shape, normalize_images, normali
         test_dataset = create_dataset(test_x, test_y, input_shape, normalize_images, normalize_masks,
                                     batch=batch_size,
                                     buffer_size=buffer_size)
+        
+        breakpoint()
     else:
-        #use DALI instead of astropy
+        #use DALI instead of astropy)
         train_dataset = create_dataset_DALI(train_x, train_y, input_shape, normalize_images, normalize_masks,
                             batch=batch_size,
                             buffer_size=buffer_size)
         test_dataset = create_dataset_DALI(test_x, test_y, input_shape, normalize_images, normalize_masks,
                                     batch=batch_size,
                                     buffer_size=buffer_size)
+        
+        breakpoint()
+
 
     n_train = len(train_x)
     n_test = len(test_x)

@@ -34,6 +34,9 @@ export DATA_PATH=/home/aderylo/2011/01/
 ```
 
 Before training you have to convert npz files to npy in label subfolder. 
+```
+python convert_npz_to_npy.py
+```
 
 To start training:
 ```
