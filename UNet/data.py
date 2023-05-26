@@ -97,7 +97,7 @@ def create_dataset(images, masks, input_shape, normalize_images, normalize_masks
     dataset = dataset.prefetch(tf.data.AUTOTUNE)
     return dataset
 
-# normalize according to formula: (target - min_target ) / (max_target  - min_target)
+# normalize target according to formula: (target - min_target ) / (max_target  - min_target)
 def normalize_target(target):
     min_target = fn.reductions.min(target)
     max_target = fn.reductions.max(target)
