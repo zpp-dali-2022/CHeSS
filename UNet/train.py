@@ -7,7 +7,7 @@ import data
 import model
 import matplotlib.pyplot as plt
 
-# Added '--use_dali' optional option
+# Added '--use_dali' optional option and '--GPU' option (in case of using DALI)
 parser = argparse.ArgumentParser()
 parser.add_argument('--use_dali', action='store_true', help='Use DALI for processing')
 parser.add_argument('--GPU', action='store_true', help='Use GPU for computing')
