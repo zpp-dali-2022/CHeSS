@@ -20,7 +20,7 @@ if gpus:
     try:
         tf.config.set_logical_device_configuration(
             gpus[0],
-            [tf.config.LogicalDeviceConfiguration(memory_limit=1024*45)])
+            [tf.config.LogicalDeviceConfiguration(memory_limit=1024*6)])
         logical_gpus = tf.config.list_logical_devices('GPU')
         print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
     except RuntimeError as e:
@@ -33,7 +33,7 @@ else:
 normalize_image = True  # Will normalize between [0-1]
 normalize_masks = False  # Masks are already between [0-1]
 input_shape = (256, 256, 1)  # image dimensions, nb of channels. Set 1 channel for SDO data if testing 1 wavelength
-batch_size = 16  # Note that we will use an infinitely repeating data generator
+batch_size = 4 # Note that we will use an infinitely repeating data generator
 if args.use_dali:
     # Paths to images and label masks
     data_path = os.getenv('DATA_PATH', '/home/ahess/2011/01/')

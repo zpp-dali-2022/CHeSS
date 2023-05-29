@@ -33,11 +33,8 @@ def preprocess_image(path, normalize, output_size=(256, 256)):
 
     x = preprocess_array(x, normalize, output_size=output_size)
     # If the image has only 1 channel (not a 3D cube), we need to add another dimension
-    # print(x.shape) (256, 256)
     if len(x.shape) == 2:
         x = np.expand_dims(x, axis=-1)
-        #  print(x.shape) (256, 256, 1)
-        print(x)
     return x
 
 

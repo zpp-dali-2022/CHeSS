@@ -66,3 +66,36 @@ pip install ./dali/python
 ```
 More info about installation from source:
 https://docs.nvidia.com/deeplearning/dali/user-guide/docs/compilation.html#bare-metal-build
+## Possible issues
+
+### Tensorflow not detecting GPUs 
+If tensorflow doesn't detect any GPU's even though there is one (check with 'nvidia-smi' command),
+it might be the case that there is mismatch between cudatoolkit version and tensorflow version.
+For example, you might have CUDA 12.1 which is yet not supported by the newest version of tf (2.12).
+
+In such case, the recommended solution is to use conda and install appropriate packages in 
+a conda environment without messing around with system wide installations. 
+
+Installation guide for debian/ubuntu with apt:
+https://docs.conda.io/projects/conda/en/latest/user-guide/install/rpm-debian.html
+
+Here is how to use conda environments: 
+https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+Once you are in a conda env install requirements with pip, then 
+install tensorflow as described here: https://www.tensorflow.org/install/pip
+Finally install dali from source (if fits gpu is yet not released) as described above.
+
+### Running out of memory
+If during pipeline execution operators such numpy reader crash due to being unable to
+allocate memory, set lower limit for tensorflow in train.py so it doesn't hog all memory for itself:
+```
+# here memory limit for tensorflow is set to 6gb 
+            [tf.config.LogicalDeviceConfiguration(memory_limit=1024*6)])
+```
+Further you can limit batch size in train.py:  
+```
+batch_size = 16 
+```
+
+TODO: turn on lazy memory allocation for tensorflow so we don't have to set a hard limit. 
