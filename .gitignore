@@ -10,3 +10,4 @@ __pycache__
 people_segmentation/
 checkpoints/
 *.png
+cufile.log

@@ -60,12 +60,9 @@ In such case, you have to build dali from source:
 # Assuming dali repository is in `dali` directory and  DALI_deps are installed.
 
 mkdir dali/build && cd dali/build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo-DBUILD_LMDB=ON -DBUILD_CUFILE=ON -DCUDA_TARGET_ARCHS="70" ..
 make -j24
 pip install ./dali/python  
 ```
 More info about installation from source:
 https://docs.nvidia.com/deeplearning/dali/user-guide/docs/compilation.html#bare-metal-build
-
-There are still some issues with respect to the GPU support (notably if cuda version is > 11.8) so for the time
-being please resolve to the CPU solution.  
