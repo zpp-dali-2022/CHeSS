@@ -33,33 +33,30 @@ normalize_image = True  # Will normalize between [0-1]
 normalize_masks = False  # Masks are already between [0-1]
 input_shape = (256, 256, 1)  # image dimensions, nb of channels. Set 1 channel for SDO data if testing 1 wavelength
 batch_size = 16  # Note that we will use an infinitely repeating data generator
-if args.use_dali:
-    # Paths to images and label masks
-    data_path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
-    images = sorted(glob.glob(os.path.join(data_path, "fits/*.fits" )))
-    masks = sorted(glob.glob(os.path.join( data_path, "label/*.npy")))
 
+# Paths to images and label masks
+data_path = os.getenv('DATA_PATH', '/home/mpalkus/2011/')
+images = sorted(glob.glob(os.path.join(data_path, "*/fits/*.fits"), recursive=True))
+
+
+if args.use_dali:
+    masks = sorted(glob.glob(os.path.join(data_path, "*/label/*.npy"), recursive=True))
     # Generate training/test data
     train_dataset, test_dataset, n_train, n_test = data.create_train_test_sets(images, masks, input_shape,
                                                                             normalize_images=True,
                                                                             normalize_masks=False,
                                                                             batch_size=batch_size,
-                                                                            buffer_size=5000, use_dali = True)          
-                                                                            
-else:    
-    # Paths to images and label masks
-    data_path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
-    images = sorted(glob.glob(os.path.join(data_path, "fits/*.fits" )))
-    masks = sorted(glob.glob(os.path.join( data_path, "label/*.npz")))
+                                                                            buffer_size=5000, use_dali = True)
 
-
+else:
+    masks = sorted(glob.glob(os.path.join(data_path, "*/label/*.npz"), recursive=True))
     # Generate training/test data
     train_dataset, test_dataset, n_train, n_test = data.create_train_test_sets(images, masks, input_shape,
                                                                             normalize_images=True,
                                                                             normalize_masks=False,
                                                                             batch_size=batch_size,
                                                                             buffer_size=5000, use_dali = False)
-                                                                 
+
 
 
 # -------------------------------------------------------------------------------- #

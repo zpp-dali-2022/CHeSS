@@ -1,19 +1,18 @@
 import os
 import numpy as np
 
-# Convert '.npz' files to '.npy' format
-def convert(path):
-    npz_files = [file for file in os.listdir(path) if file.endswith('.npz')]
-    for npz_file in npz_files:
-        npz_file_path = os.path.join(path, npz_file)
-        npy_file_path = os.path.join(path,
-                                     npz_file.replace('.npz', '.npy'))
+# Funkcja rekurencyjna do konwersji plików '.npz' na format '.npy'
+def convert_recursive(directory):
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith('.npz'):
+                npz_file_path = os.path.join(root, file)
+                npy_file_path = os.path.join(root, file.replace('.npz', '.npy'))
 
-        with np.load(npz_file_path) as data:
-            np.save(npy_file_path, data['arr_0'].astype(np.uint8))
+                with np.load(npz_file_path) as data:
+                    np.save(npy_file_path, data['arr_0'].astype(np.uint8))
 
 
 if __name__ == "__main__":
-    path = os.getenv('DATA_PATH', '/home/aderylo/2011/01/')
-    path = os.path.join( path, "label")
-    convert(path)
+    directory = os.getenv('DATA_PATH', '/home/mpalkus/2011/')
+    convert_recursive(directory)

@@ -37,7 +37,7 @@ def preprocess_image(path, normalize, output_size=(256, 256)):
     if len(x.shape) == 2:
         x = np.expand_dims(x, axis=-1)
         #  print(x.shape) (256, 256, 1)
-        print(x)
+        # print(x)
     return x
 
 
@@ -45,9 +45,9 @@ def preprocess_mask(path, normalize, output_size=(256, 256)):
     if Path(path).suffix == '.npz':
         data = np.load(path)
         x = data['arr_0'].astype(np.uint8)
-    elif Path(path).suffix == '.npy':   
+    elif Path(path).suffix == '.npy':
         data = np.load(path)
-        x = data['arr_0'].astype(np.uint8) 
+        x = data['arr_0'].astype(np.uint8)
     else:
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     x = preprocess_array(x, normalize, output_size=output_size)
@@ -100,14 +100,14 @@ def create_dataset(images, masks, input_shape, normalize_images, normalize_masks
 @pipeline_def(device_id=0, batch_size=64)
 def dali_pipeline(images, masks, device = "cpu"):
     images = fn.experimental.readers.fits(device=device, files=images) # after that (16, 4096, 4096)
-    images = fn.cast(images, dtype=types.FLOAT) 
-    images = fn.expand_dims(images, axes=[2]) 
-    images = fn.resize(images, size=[256, 256]) 
+    images = fn.cast(images, dtype=types.FLOAT)
+    images = fn.expand_dims(images, axes=[2])
+    images = fn.resize(images, size=[256, 256])
 
-    masks = fn.readers.numpy(device=device, files=masks) 
-    masks = fn.cast(masks, dtype=types.FLOAT) 
-    masks = fn.expand_dims(masks, axes=[2]) 
-    masks = fn.resize(masks, size=[256, 256]) 
+    masks = fn.readers.numpy(device=device, files=masks)
+    masks = fn.cast(masks, dtype=types.FLOAT)
+    masks = fn.expand_dims(masks, axes=[2])
+    masks = fn.resize(masks, size=[256, 256])
 
     return images, masks
 
@@ -132,8 +132,8 @@ def create_dataset_DALI(images, masks, input_shape, normalize_images, normalize_
         output_shapes=shapes,
         output_dtypes=dtypes,
         device_id=0)
-    
-    return dataset 
+
+    return dataset
 
 def create_train_test_sets(images, masks, input_shape, normalize_images, normalize_masks,
                            batch_size=8, buffer_size=1000, use_dali=False):
@@ -146,7 +146,7 @@ def create_train_test_sets(images, masks, input_shape, normalize_images, normali
                                     buffer_size=buffer_size)
         test_dataset = create_dataset(test_x, test_y, input_shape, normalize_images, normalize_masks,
                                     batch=batch_size,
-                                    buffer_size=buffer_size)        
+                                    buffer_size=buffer_size)
     else:
         #use DALI instead of astropy)
         train_dataset = create_dataset_DALI(train_x, train_y, input_shape, normalize_images, normalize_masks,
