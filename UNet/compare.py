@@ -57,7 +57,7 @@ with open('auto_compare_results.txt', 'w') as file:
     print("=========================================================================", file=file)
     print("RESULTS FOR BATCH SIZE: 4", file=file)
 
-    # print(f"Time for DALI (CPU): {dali_cpu_time} s", file=file)
+    print(f"Time for DALI (CPU): {dali_cpu_time} s", file=file)
     print(f"Time for DALI (GPU): {dali_gpu_time} s", file=file)
     print(f"Time for FITSIO (GPU): {FITSIO_gpu_time} s", file=file)
 
