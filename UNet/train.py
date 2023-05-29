@@ -14,6 +14,7 @@ parser.add_argument('--GPU', action='store_true', help='Use GPU for computing')
 args = parser.parse_args()
 # Restrict GPU memory to 45 GB:
 # https://www.tensorflow.org/guide/gpu#limiting_gpu_memory_growth
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
     try:

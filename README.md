@@ -23,6 +23,7 @@ The graph below illustrates one of our UNet architectures:
 
 ---
 # DALI contributions
+## Prerequisites  
 Install dependencies: 
 ```
 pip install -r requirements.txt
@@ -33,17 +34,38 @@ Export path to data, here is my example:
 export DATA_PATH=/home/aderylo/2011/01/
 ```
 
-Before training you have to convert npz files to npy in label subfolder. 
+Before training you have to convert npz files to npy in a label subfolder:
 ```
 python convert_npz_to_npy.py
 ```
+
+## Usage
 
 To start training:
 ```
 python UNet/train.py
 ```
-
-If running with DALI:
+If running with DALI for data preprocessing:
 ```
 python UNet/train.py --use_dali
 ```
+To use DALI on GPU backend
+```
+python UNet/train.py --use_dali --GPU
+```
+
+It might be the case that GPU support for fits reader haven't been yet released.
+In such case, you have to build dali from source:
+```
+# Assuming dali repository is in `dali` directory and  DALI_deps are installed.
+
+mkdir dali/build && cd dali/build
+cmake ..
+make -j24
+pip install ./dali/python  
+```
+More info about installation from source:
+https://docs.nvidia.com/deeplearning/dali/user-guide/docs/compilation.html#bare-metal-build
+
+There are still some issues with respect to the GPU support (notably if cuda version is > 11.8) so for the time
+being please resolve to the CPU solution.  
