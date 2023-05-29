@@ -128,6 +128,6 @@ WARNING:absl:Found untraced functions such as _jit_compiled_convolution_op, _jit
 =========================================================================
 Time for DALI (GPU): 482.96667981147766 s
 Time for FITSIO (GPU): 625.5841865539551 s
-DALI on GPU is -142.61750674247742 s faster than FITSIO on GPU
+DALI on GPU is 142.61750674247742 s faster than FITSIO on GPU
 DALI on GPU is 1.2952947122525038 times faster than FITSIO on GPU
 =========================================================================
