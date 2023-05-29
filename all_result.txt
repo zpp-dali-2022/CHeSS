@@ -1,0 +1,133 @@
+=========================================================================
+================================ DALI, GPU ==============================
+=========================================================================
+
+
+2023-05-29 20:21:57.268836: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2023-05-29 20:21:57.306068: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-05-29 20:21:57.954573: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+Num GPUs Available:  1
+2023-05-29 20:22:00.133334: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1635] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 6144 MB memory:  -> device: 0, name: NVIDIA TITAN V, pci bus id: 0000:65:00.0, compute capability: 7.0
+1 Physical GPUs, 1 Logical GPUs
+Creating DALI pipeline
+Use GPU for computing
+Creating DALI pipeline
+Use GPU for computing
+Epoch 1/10
+2023-05-29 20:22:06.406466: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:424] Loaded cuDNN version 8600
+2023-05-29 20:22:08.214878: W tensorflow/tsl/framework/bfc_allocator.cc:296] Allocator (GPU_0_bfc) ran out of memory trying to allocate 4.30GiB with freed_by_count=0. The caller indicates that this is not a failure, but this may mean that there could be performance gains if more memory were available.
+2023-05-29 20:22:08.417022: I tensorflow/compiler/xla/service/service.cc:169] XLA service 0x7f0850efea90 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2023-05-29 20:22:08.417051: I tensorflow/compiler/xla/service/service.cc:177]   StreamExecutor device (0): NVIDIA TITAN V, Compute Capability 7.0
+2023-05-29 20:22:08.420468: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:269] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2023-05-29 20:22:08.538685: I ./tensorflow/compiler/jit/device_compiler.h:180] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+2023-05-29 20:22:08.703659: W tensorflow/tsl/framework/bfc_allocator.cc:296] Allocator (GPU_0_bfc) ran out of memory trying to allocate 4.11GiB with freed_by_count=0. The caller indicates that this is not a failure, but this may mean that there could be performance gains if more memory were available.
+269/269 [==============================] - 62s 171ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+Epoch 2/10
+269/269 [==============================] - 45s 167ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+Epoch 3/10
+269/269 [==============================] - 45s 167ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+Epoch 4/10
+269/269 [==============================] - 45s 168ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+Epoch 5/10
+269/269 [==============================] - 45s 167ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+Epoch 6/10
+269/269 [==============================] - 45s 167ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+Epoch 7/10
+269/269 [==============================] - 45s 167ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+Epoch 8/10
+269/269 [==============================] - 45s 167ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+Epoch 9/10
+269/269 [==============================] - 45s 167ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+Epoch 10/10
+269/269 [==============================] - 45s 168ms/step - loss: nan - accuracy: 0.9806 - val_loss: nan - val_accuracy: 0.9802
+2023-05-29 20:29:50.771107: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:29:50.821942: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:29:50.903749: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:29:51.008052: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:29:54.710165: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:29:54.805518: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:29:54.900626: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:29:54.995831: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+WARNING:absl:Found untraced functions such as _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op while saving (showing 5 of 32). These functions will not be directly callable after loading.
+
+=========================================================================
+============================= FITSIO, GPU ===========================
+=========================================================================
+
+2023-05-29 20:30:00.111965: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2023-05-29 20:30:00.145800: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-05-29 20:30:00.787071: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+Num GPUs Available:  1
+2023-05-29 20:30:02.952510: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1635] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 6144 MB memory:  -> device: 0, name: NVIDIA TITAN V, pci bus id: 0000:65:00.0, compute capability: 7.0
+1 Physical GPUs, 1 Logical GPUs
+2023-05-29 20:30:03.529387: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_1' with dtype string and shape [1079]
+         [[{{node Placeholder/_1}}]]
+2023-05-29 20:30:03.529623: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_1' with dtype string and shape [1079]
+         [[{{node Placeholder/_1}}]]
+Epoch 1/10
+2023-05-29 20:30:11.206055: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:424] Loaded cuDNN version 8600
+2023-05-29 20:30:13.065271: W tensorflow/tsl/framework/bfc_allocator.cc:296] Allocator (GPU_0_bfc) ran out of memory trying to allocate 4.30GiB with freed_by_count=0. The caller indicates that this is not a failure, but this may mean that there could be performance gains if more memory were available.
+2023-05-29 20:30:13.291915: I tensorflow/compiler/xla/service/service.cc:169] XLA service 0x7f50210fcd10 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2023-05-29 20:30:13.291949: I tensorflow/compiler/xla/service/service.cc:177]   StreamExecutor device (0): NVIDIA TITAN V, Compute Capability 7.0
+2023-05-29 20:30:13.968454: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:269] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2023-05-29 20:30:14.109543: I ./tensorflow/compiler/jit/device_compiler.h:180] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+2023-05-29 20:30:14.267942: W tensorflow/tsl/framework/bfc_allocator.cc:296] Allocator (GPU_0_bfc) ran out of memory trying to allocate 4.11GiB with freed_by_count=0. The caller indicates that this is not a failure, but this may mean that there could be performance gains if more memory were available.
+269/269 [==============================] - ETA: 0s - loss: 0.2116 - accuracy: 0.98362023-05-29 20:33:54.591370: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_0' with dtype string and shape [270]
+         [[{{node Placeholder/_0}}]]
+2023-05-29 20:33:54.592106: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'Placeholder/_1' with dtype string and shape [270]
+         [[{{node Placeholder/_1}}]]
+269/269 [==============================] - 286s 991ms/step - loss: 0.2116 - accuracy: 0.9836 - val_loss: 0.0503 - val_accuracy: 0.9880
+Epoch 2/10
+269/269 [==============================] - 39s 134ms/step - loss: 0.0168 - accuracy: 0.9940 - val_loss: 0.0243 - val_accuracy: 0.9926
+Epoch 3/10
+269/269 [==============================] - 36s 134ms/step - loss: 0.0147 - accuracy: 0.9944 - val_loss: 0.0190 - val_accuracy: 0.9943
+Epoch 4/10
+269/269 [==============================] - 36s 134ms/step - loss: 0.0124 - accuracy: 0.9951 - val_loss: 0.0124 - val_accuracy: 0.9952
+Epoch 5/10
+269/269 [==============================] - 36s 134ms/step - loss: 0.0104 - accuracy: 0.9958 - val_loss: 0.0158 - val_accuracy: 0.9952
+Epoch 6/10
+269/269 [==============================] - 36s 134ms/step - loss: 0.0093 - accuracy: 0.9962 - val_loss: 0.0132 - val_accuracy: 0.9956
+Epoch 7/10
+269/269 [==============================] - 36s 134ms/step - loss: 0.0098 - accuracy: 0.9961 - val_loss: 0.0147 - val_accuracy: 0.9956
+Epoch 8/10
+269/269 [==============================] - 36s 134ms/step - loss: 0.0085 - accuracy: 0.9965 - val_loss: 0.0137 - val_accuracy: 0.9956
+Epoch 9/10
+269/269 [==============================] - 36s 135ms/step - loss: 0.0078 - accuracy: 0.9967 - val_loss: 0.0081 - val_accuracy: 0.9966
+Epoch 10/10
+269/269 [==============================] - 36s 135ms/step - loss: 0.0072 - accuracy: 0.9970 - val_loss: 0.0080 - val_accuracy: 0.9966
+2023-05-29 20:40:18.081366: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:40:18.132917: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:40:18.184317: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:40:18.388288: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:40:20.996714: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:40:21.091653: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:40:21.186653: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+2023-05-29 20:40:21.282158: I tensorflow/core/common_runtime/executor.cc:1197] [/device:CPU:0] (DEBUG INFO) Executor start aborting (this does not indicate an error and you can ignore this message): INVALID_ARGUMENT: You must feed a value for placeholder tensor 'inputs' with dtype float and shape [?,?,?,?]
+         [[{{node inputs}}]]
+WARNING:absl:Found untraced functions such as _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op while saving (showing 5 of 32). These functions will not be directly callable after loading.
+
+=========================================================================
+======================= RESULTS FOR BATCH SIZE: 4 =======================
+=========================================================================
+Time for DALI (GPU): 482.96667981147766 s
+Time for FITSIO (GPU): 625.5841865539551 s
+DALI on GPU is -142.61750674247742 s faster than FITSIO on GPU
+DALI on GPU is 1.2952947122525038 times faster than FITSIO on GPU
+=========================================================================
