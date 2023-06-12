@@ -40,11 +40,11 @@ if __name__ == "__main__":
         print("=========================================================================")
         print(f"""\n\nIteration {i}\n\n""")
         print("=========================================================================")
-        for benchmark in [dali_gpu_benchmark(), fitsio_benchmark()]:
-            time = benchmark()
+        for benchmark in [dali_gpu_benchmark, fitsio_benchmark]:
+            t = benchmark()
             results[benchmark.__name__] = {
-                "time": time,
-                "throughput": n_images / time,
+                "time": t,
+                "throughput": n_images / t,
                 "n_images": n_images,
             }
 

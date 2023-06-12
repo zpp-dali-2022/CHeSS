@@ -91,7 +91,7 @@ final_activation = 'sigmoid'
 # As we use a generator with random augmentation, train lengths and batch size are not constraining the
 # number of steps per epochs and validation steps. Nonetheless, pick reasonable numbers to avoid overtraining
 # given that there are only 30 samples in the data source that are very similar to each other.
-epochs = 10
+epochs = 5
 steps_per_epochs = n_train//batch_size
 # validation steps to perform at the end of each epoch:
 # with the dataset generator, must be set to avoid an infinite evaluation loop after each training epoch
@@ -115,27 +115,10 @@ unet = model.unet_model(input_shape, n_classes, filters, compiler_dict,
                         final_activation=final_activation,
                         transpose_conv=transpose_conv)
 
-
-if pretrained_weights is not None:
-    unet.load_weights(pretrained_weights)
-
 history = unet.fit(train_dataset,
                    epochs=epochs,
                    steps_per_epoch=steps_per_epochs,
                    validation_data=test_dataset,
                    validation_steps=validation_steps)
 
-checkpoint_path = os.path.join(checkpoint_dir, checkpoint_name)
-unet.save_weights(checkpoint_path)
 
-unet.save(f'trainedUNet_resNet_{int(res_block)}')
-
-# plot training and validation accuracy
-plt.figure(figsize=(8, 8))
-plt.plot(history.history['accuracy'], label='accuracy')
-plt.plot(history.history['val_accuracy'], label='val_accuracy')
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy')
-plt.grid()
-plt.legend(loc='lower right')
-plt.savefig(f'U-Net_accuracies_resNet_{int(res_block)}.png')
