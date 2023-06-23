@@ -28,16 +28,36 @@ Install dependencies:
 ```
 pip install -r requirements.txt
 ```
-
-Export path to data, here is my example:
+Export path to your data:
 ```
-export DATA_PATH=/home/mpalkus/2011/
+export DATA_PATH=/home/yourusername/2011/
 ```
 
 Before training you have to convert npz files to npy in a label subfolder:
 ```
 python convert_npz_to_npy.py
 ```
+## Getting DALI
+Since it might be the case that GPU support for fits reader haven't been yet officially released, dali is not included in 'requirements.txt'.
+There are two ways you can go about it. Either install nightly packages:
+```
+pip install --extra-index-url https://developer.download.nvidia.com/compute/redist/nightly --upgrade nvidia-dali-nightly-cuda110
+pip install --extra-index-url https://developer.download.nvidia.com/compute/redist/nightly --upgrade nvidia-dali-tf-plugin-nightly-cuda110
+
+# For more details refer to https://docs.nvidia.com/deeplearning/dali/main-user-guide/docs/installation.html 
+```
+
+Or building dali from source:
+```
+# Assuming dali repository is in `dali` directory and  DALI_deps are installed.
+
+mkdir dali/build && cd dali/build
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo-DBUILD_LMDB=ON -DBUILD_CUFILE=ON -DCUDA_TARGET_ARCHS="70" ..
+make -j24
+pip install ./dali/python
+```
+More info about installation from source:
+https://docs.nvidia.com/deeplearning/dali/user-guide/docs/compilation.html#bare-metal-build
 
 ## Usage
 
@@ -53,19 +73,6 @@ To use DALI on GPU backend
 ```
 python UNet/train.py --use_dali --GPU
 ```
-
-It might be the case that GPU support for fits reader haven't been yet released.
-In such case, you have to build dali from source:
-```
-# Assuming dali repository is in `dali` directory and  DALI_deps are installed.
-
-mkdir dali/build && cd dali/build
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo-DBUILD_LMDB=ON -DBUILD_CUFILE=ON -DCUDA_TARGET_ARCHS="70" ..
-make -j24
-pip install ./dali/python
-```
-More info about installation from source:
-https://docs.nvidia.com/deeplearning/dali/user-guide/docs/compilation.html#bare-metal-build
 ## Possible issues
 
 ### Tensorflow not detecting GPUs
@@ -97,5 +104,3 @@ Further you can limit batch size in train.py:
 ```
 batch_size = 16
 ```
-
-TODO: turn on lazy memory allocation for tensorflow so we don't have to set a hard limit.
