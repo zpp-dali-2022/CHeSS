@@ -73,6 +73,10 @@ To use DALI on GPU backend
 ```
 python UNet/train.py --use_dali --GPU
 ```
+To run benchmarks: 
+```
+python UNet/benchmark.py
+```
 ## Possible issues
 
 ### Tensorflow not detecting GPUs
